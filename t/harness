@@ -114,7 +114,7 @@ if (@ARGV) {
     unless (@tests) {
 	my @seq = <base/*.t>;
 
-	my @next = qw(comp run cmd io re opbasic op uni mro lib porting perf);
+	my @next = qw(comp run cmd io re opbasic op uni mro lib porting perf ../ext/XS-APItest/t);
 	push @next, 'japh' if $torture;
 	push @next, 'win32' if $^O eq 'MSWin32';
 	push @next, 'benchmark' if $ENV{PERL_BENCHMARK};
