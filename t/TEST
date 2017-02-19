@@ -403,6 +403,7 @@ sub _tests_from_manifest {
     my $mani = '../MANIFEST';
     if (open(MANI, $mani)) {
 	while (<MANI>) {
+	    next if m/XS-APItest/;
 	    if (m!^((?:cpan|dist|ext)/(\S+)/+(?:[^/\s]+\.t|test\.pl)|lib/\S+?(?:\.t|test\.pl))\s!) {
 		my $t = $1;
 		my $extension = $2;
