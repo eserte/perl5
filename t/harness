@@ -13,6 +13,7 @@ my $torture; # torture testing?
 use TAP::Harness 3.13;
 use strict;
 use Config;
+use Data::Dumper;
 
 $::do_nothing = $::do_nothing = 1;
 require './TEST';
@@ -194,6 +195,8 @@ for (@tests) {
     }
 }
 
+print STDERR "QQQ:\n";
+print STDERR Dumper([ \@tests, $rules ]);
 my %options;
 
 my $type = 'perl';
