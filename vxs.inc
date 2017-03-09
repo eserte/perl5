@@ -247,7 +247,7 @@ VXS(version_new)
 
     rv = NEW_VERSION(vs);
     if ( len != sizeof(VXS_CLASS)-1
-      || strcmp(classname,VXS_CLASS) != 0 ) /* inherited new() */
+      || strNE(classname,VXS_CLASS) ) /* inherited new() */
 #if PERL_VERSION == 5
         sv_bless(rv, gv_stashpv((char *)classname, GV_ADD));
 #else
@@ -442,8 +442,7 @@ VXS(version_qv)
 	} else {
 	    rv = sv_2mortal(NEW_VERSION(ver));
 	}
-	if ( items == 2 && (len != 7
-                || strcmp(classname,"version")) ) { /* inherited new() */
+	if ( items == 2 && strNEs(classname, len, "version") ) { /* inherited new() */
 #if PERL_VERSION == 5
 	    sv_bless(rv, gv_stashpv((char *)classname, GV_ADD));
 #else
