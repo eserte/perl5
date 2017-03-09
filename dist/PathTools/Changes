@@ -1,5 +1,8 @@
 Revision history for Perl distribution PathTools.
 
+3.68 - XXX
+- XXX
+
 3.67 - Mon Feb 27 09:33:04 EST 2017
 - Add security usage note to File::Spec::no_upwards
 
