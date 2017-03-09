@@ -920,7 +920,7 @@ PP(pp_formline)
 			    *t++ = ' ';
 		    }
 		    s1 = t - 3;
-		    if (strnEQ(s1,"   ",3)) {
+		    if (strSTARTS_WITHs(s1,"   ")) {
 			while (s1 > SvPVX_const(PL_formtarget) && isSPACE(s1[-1]))
 			    s1--;
 		    }

@@ -12021,8 +12021,8 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
     }
     else if(!(endbrace == RExC_parse		/* nothing between the {} */
               || (endbrace - RExC_parse >= 2	/* U+ (bad hex is checked... */
-                  && strnEQ(RExC_parse, "U+", 2)))) /* ... below for a better
-                                                       error msg) */
+                  && strSTARTS_WITHs(RExC_parse, "U+")))) /* ... below for a better
+                                                     error msg) */
     {
 	RExC_parse = endbrace;	/* position msg's '<--HERE' */
 	vFAIL("\\N{NAME} must be resolved by the lexer");
@@ -12707,7 +12707,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
                 switch (*RExC_parse) {
                     case 'g':
                         if (length != 1
-                            && (length != 3 || strnNE(RExC_parse + 1, "cb", 2)))
+                            && (length != 3 || ! strSTARTS_WITHs(RExC_parse + 1, "cb")))
                         {
                             goto bad_bound_type;
                         }

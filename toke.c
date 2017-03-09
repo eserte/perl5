@@ -4863,7 +4863,7 @@ Perl_yylex(pTHX)
 	    }
 	    else {
 		I32 tmp;
-                if (strnEQ(s, "L\\u", 3) || strnEQ(s, "U\\l", 3))
+                if (strSTARTS_WITHs(s, "L\\u") || strSTARTS_WITHs(s, "U\\l"))
                     tmp = *s, *s = s[2], s[2] = (char)tmp;	/* misordered... */
 		if ((*s == 'L' || *s == 'U' || *s == 'F')
                     && (strpbrk(PL_lex_casestack, "LUF")))
