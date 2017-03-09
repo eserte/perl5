@@ -11891,9 +11891,11 @@ Perl_ck_entersub_args_core(pTHX_ OP *entersubop, GV *namegv, SV *protosv)
             op_sibling_splice(parent, first, -1, NULL);
 	op_free(entersubop);
 
-	if (opnum == OP_ENTEREVAL
-	 && GvNAMELEN(namegv)==9 && strnEQ(GvNAME(namegv), "evalbytes", 9))
+	if (   opnum == OP_ENTEREVAL
+	    && strEQs(GvNAME(namegv), GvNAMELEN(namegv), "evalbytes"))
+        {
 	    flags |= OPpEVAL_BYTES <<8;
+        }
 	
 	switch (PL_opargs[opnum] & OA_CLASS_MASK) {
 	case OA_UNOP:

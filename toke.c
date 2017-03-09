@@ -2616,8 +2616,7 @@ S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* const e)
         SvTYPE(rv) == SVt_PVCV) && ((stash = CvSTASH(rv)) != NULL))
     {
         const char * const name = HvNAME(stash);
-        if (HvNAMELEN(stash) == sizeof("_charnames")-1
-         && strEQ(name, "_charnames")) {
+         if (strEQs(name, HvNAMELEN(stash), "_charnames")) {
            return res;
        }
     }
@@ -4590,7 +4589,7 @@ S_find_in_my_stash(pTHX_ const char *pkgname, STRLEN len)
 
     PERL_ARGS_ASSERT_FIND_IN_MY_STASH;
 
-    if (len == 11 && *pkgname == '_' && strEQ(pkgname, "__PACKAGE__"))
+    if (strEQs(pkgname, len, "__PACKAGE__"))
         return PL_curstash;
 
     if (len > 2
@@ -5899,7 +5898,7 @@ Perl_yylex(pTHX)
 		    PL_lex_stuff = NULL;
 		}
 		else {
-		    if (len == 6 && strnEQ(SvPVX(sv), "unique", len)) {
+		    if (strEQs(SvPVX(sv), len, "unique")) {
 			sv_free(sv);
 			if (PL_in_my == KEY_our) {
                             deprecate_disappears_in("5.28",
@@ -5911,21 +5910,20 @@ Perl_yylex(pTHX)
 
 		    /* NOTE: any CV attrs applied here need to be part of
 		       the CVf_BUILTIN_ATTRS define in cv.h! */
-		    else if (!PL_in_my && len == 6 && strnEQ(SvPVX(sv), "lvalue", len)) {
+		    else if (!PL_in_my && strEQs(SvPVX(sv), len, "lvalue")) {
 			sv_free(sv);
 			CvLVALUE_on(PL_compcv);
 		    }
-		    else if (!PL_in_my && len == 6 && strnEQ(SvPVX(sv), "locked", len)) {
+		    else if (!PL_in_my && strEQs(SvPVX(sv), len, "locked")) {
 			sv_free(sv);
                         deprecate_disappears_in("5.28",
                             "Attribute \"locked\" is deprecated");
 		    }
-		    else if (!PL_in_my && len == 6 && strnEQ(SvPVX(sv), "method", len)) {
+		    else if (!PL_in_my && strEQs(SvPVX(sv), len, "method")) {
 			sv_free(sv);
 			CvMETHOD_on(PL_compcv);
 		    }
-		    else if (!PL_in_my && len == 5
-			  && strnEQ(SvPVX(sv), "const", len))
+		    else if (!PL_in_my && strEQs(SvPVX(sv), len, "const"))
 		    {
 			sv_free(sv);
 			Perl_ck_warner_d(aTHX_
@@ -7795,7 +7793,7 @@ Perl_yylex(pTHX)
 		*PL_tokenbuf = '&';
 		d = scan_word(s, PL_tokenbuf + 1, sizeof PL_tokenbuf - 1,
 			      1, &len);
-		if (len && (len != 4 || strNE(PL_tokenbuf+1, "CORE"))
+		if (len && strNEs(PL_tokenbuf+1, len, "CORE")
 		 && !keyword(PL_tokenbuf + 1, len, 0)) {
                     SSize_t off = s-SvPVX(PL_linestr);
 		    d = skipspace(d);
@@ -8173,7 +8171,7 @@ Perl_yylex(pTHX)
 	    s = skipspace(s);
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-		if (len == 3 && strSTARTS_WITHs(PL_tokenbuf, "sub"))
+		if (strEQs(PL_tokenbuf, len, "sub"))
 		    goto really_sub;
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
 		if (!PL_in_my_stash) {

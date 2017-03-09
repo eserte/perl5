@@ -487,6 +487,13 @@ Returns zero if non-equal, or non-zero if equal.
 
 #define strSTARTS_WITHs(s1,s2) (!strncmp(s1,"" s2 "", sizeof(s2)-1))
 
+/* strEQs(s1, s1_len, s2)
+ * Check for equality between NUL-terminated string 's1' against the string
+ * constant "s2".  strlen(s1) is known to be 's1_len'.  Returns 1 if equal; 0
+ * if not. */
+#define strEQs(s1, s1_len, s2) ((s1_len) == sizeof(s2)-1 && strEQ(s1, "" s2 ""))
+#define strNEs(s1, s1_len, s2) (! strEQs(s1, s1_len, s2))
+
 #ifdef HAS_MEMCMP
 #  define memNE(s1,s2,l) (memcmp(s1,s2,l))
 #  define memEQ(s1,s2,l) (!memcmp(s1,s2,l))
