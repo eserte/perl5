@@ -1745,7 +1745,7 @@ S_incline(pTHX_ const char *s)
 	return;
     while (SPACE_OR_TAB(*s))
 	s++;
-    if (strEQs(s, "line"))
+    if (strSTARTS_WITHs(s, "line"))
 	s += 4;
     else
 	return;
@@ -2103,7 +2103,7 @@ S_force_word(pTHX_ char *start, int token, int check_keyword, int allow_pack)
 	if (check_keyword) {
 	  char *s2 = PL_tokenbuf;
 	  STRLEN len2 = len;
-	  if (allow_pack && len > 6 && strEQs(s2, "CORE::"))
+	  if (allow_pack && len > 6 && strSTARTS_WITHs(s2, "CORE::"))
 	    s2 += 6, len2 -= 6;
 	  if (keyword(s2, len2, 0))
 	    return start;
@@ -5309,7 +5309,7 @@ Perl_yylex(pTHX)
 	    }
 	    if (PL_parser->in_pod) {
 		/* Incest with pod. */
-		if (*s == '=' && strEQs(s, "=cut") && !isALPHA(s[4])) {
+		if (*s == '=' && strSTARTS_WITHs(s, "=cut") && !isALPHA(s[4])) {
                     SvPVCLEAR(PL_linestr);
 		    PL_oldoldbufptr = PL_oldbufptr = s = PL_linestart = SvPVX(PL_linestr);
 		    PL_bufend = SvPVX(PL_linestr) + SvCUR(PL_linestr);
@@ -5595,7 +5595,7 @@ Perl_yylex(pTHX)
 	    while (s < PL_bufend && SPACE_OR_TAB(*s))
 		s++;
 
-	    if (strEQs(s,"=>")) {
+	    if (strSTARTS_WITHs(s,"=>")) {
 		s = force_word(PL_bufptr,BAREWORD,FALSE,FALSE);
 		DEBUG_T( { printbuf("### Saw unary minus before =>, forcing word %s\n", s); } );
 		OPERATOR('-');		/* unary minus */
@@ -6222,7 +6222,7 @@ Perl_yylex(pTHX)
 			PL_expect = XTERM;
 			break;
 		    }
-		    if (strEQs(s, "sub")) {
+		    if (strSTARTS_WITHs(s, "sub")) {
 			d = s + 3;
 			d = skipspace(d);
 			if (*d == ':') {
@@ -6355,7 +6355,7 @@ Perl_yylex(pTHX)
 	{
 	    const char tmp = *s++;
 	    if (tmp == '=') {
-	        if ((s == PL_linestart+2 || s[-3] == '\n') && strEQs(s, "=====")) {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && strSTARTS_WITHs(s, "=====")) {
 	            s = vcs_conflict_marker(s + 5);
 	            goto retry;
 	        }
@@ -6393,7 +6393,7 @@ Perl_yylex(pTHX)
                     while (s < d) {
                         if (*s++ == '\n') {
                             incline(s);
-                            if (strEQs(s,"=cut")) {
+                            if (strSTARTS_WITHs(s,"=cut")) {
                                 s = strchr(s,'\n');
                                 if (s)
                                     s++;
@@ -6474,7 +6474,7 @@ Perl_yylex(pTHX)
 	    if (s[1] != '<' && !strchr(s,'>'))
 		check_uni();
 	    if (s[1] == '<' && s[2] != '>') {
-	        if ((s == PL_linestart || s[-1] == '\n') && strEQs(s+2, "<<<<<")) {
+	        if ((s == PL_linestart || s[-1] == '\n') && strSTARTS_WITHs(s+2, "<<<<<")) {
 	            s = vcs_conflict_marker(s + 7);
 	            goto retry;
 	        }
@@ -6489,7 +6489,7 @@ Perl_yylex(pTHX)
 	{
 	    char tmp = *s++;
 	    if (tmp == '<') {
-	        if ((s == PL_linestart+2 || s[-3] == '\n') && strEQs(s, "<<<<<")) {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && strSTARTS_WITHs(s, "<<<<<")) {
                     s = vcs_conflict_marker(s + 5);
 	            goto retry;
 	        }
@@ -6533,7 +6533,7 @@ Perl_yylex(pTHX)
 	{
 	    const char tmp = *s++;
 	    if (tmp == '>') {
-	        if ((s == PL_linestart+2 || s[-3] == '\n') && strEQs(s, ">>>>>")) {
+	        if ((s == PL_linestart+2 || s[-3] == '\n') && strSTARTS_WITHs(s, ">>>>>")) {
 	            s = vcs_conflict_marker(s + 5);
 	            goto retry;
 	        }
@@ -7916,12 +7916,12 @@ Perl_yylex(pTHX)
                 SSize_t s_off = s - SvPVX(PL_linestr);
 
 		if ((PL_bufend - p) >= 3
-                    && strEQs(p, "my") && isSPACE(*(p + 2)))
+                    && strSTARTS_WITHs(p, "my") && isSPACE(*(p + 2)))
                 {
 		    p += 2;
                 }
 		else if ((PL_bufend - p) >= 4
-                         && strEQs(p, "our") && isSPACE(*(p + 3)))
+                         && strSTARTS_WITHs(p, "our") && isSPACE(*(p + 3)))
 		    p += 3;
 		p = skipspace(p);
                 /* skip optional package name, as in "for my abc $x (..)" */
@@ -8173,7 +8173,7 @@ Perl_yylex(pTHX)
 	    s = skipspace(s);
             if (isIDFIRST_lazy_if_safe(s, PL_bufend, UTF)) {
 		s = scan_word(s, PL_tokenbuf, sizeof PL_tokenbuf, TRUE, &len);
-		if (len == 3 && strEQs(PL_tokenbuf, "sub"))
+		if (len == 3 && strSTARTS_WITHs(PL_tokenbuf, "sub"))
 		    goto really_sub;
 		PL_in_my_stash = find_in_my_stash(PL_tokenbuf, len);
 		if (!PL_in_my_stash) {
@@ -9341,7 +9341,7 @@ S_scan_ident(pTHX_ char *s, char *dest, STRLEN destlen, I32 ck_uni)
             || isDIGIT_A((U8)s[1])
             || s[1] == '$'
             || s[1] == '{'
-            || strEQs(s+1,"::")) )
+            || strSTARTS_WITHs(s+1,"::")) )
     {
         /* Dereferencing a value in a scalar variable.
            The alternatives are different syntaxes for a scalar variable.

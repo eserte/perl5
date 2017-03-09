@@ -744,7 +744,7 @@ CODE:
  int i; 
  IV  result = -1;
  ST(0) = sv_newmortal();
- if (strEQs(name,"pp_"))
+ if (strSTARTS_WITHs(name,"pp_"))
    name += 3;
  for (i = 0; i < PL_maxo; i++)
   {

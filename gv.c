@@ -84,7 +84,7 @@ Perl_gv_add_by_type(pTHX_ GV *gv, svtype type)
     {
 	*where = newSV_type(type);
 	    if (type == SVt_PVAV && GvNAMELEN(gv) == 3
-	     && strEQs(GvNAME(gv), "ISA"))
+	     && strSTARTS_WITHs(GvNAME(gv), "ISA"))
 	    sv_magic(*where, (SV *)gv, PERL_MAGIC_isa, NULL, 0);
     }
     return gv;
@@ -770,7 +770,7 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
         }
 	else if (stash == cachestash
 	      && len > 1 /* shortest is uc */ && HvNAMELEN_get(stash) == 4
-              && strEQs(hvname, "CORE")
+              && strSTARTS_WITHs(hvname, "CORE")
               && S_maybe_add_coresub(aTHX_ NULL,topgv,name,len))
 	    goto have_gv;
     }
@@ -797,7 +797,7 @@ S_gv_fetchmeth_internal(pTHX_ HV* stash, SV* meth, const char* name, STRLEN len,
         if (!gvp) {
             if (len > 1 && HvNAMELEN_get(cstash) == 4) {
                 const char *hvname = HvNAME(cstash); assert(hvname);
-                if (strEQs(hvname, "CORE")
+                if (strSTARTS_WITHs(hvname, "CORE")
                  && (candidate =
                       S_maybe_add_coresub(aTHX_ cstash,NULL,name,len)
                     ))
@@ -1063,7 +1063,7 @@ Perl_gv_fetchmethod_pvn_flags(pTHX_ HV *stash, const char *name, const STRLEN le
 			 origname, HvENAME_get(stash), name) );
 	}
         else if ( sep_len >= 7 &&
-		 strEQs(last_separator - 7, "::SUPER")) {
+		 strSTARTS_WITHs(last_separator - 7, "::SUPER")) {
             /* don't autovifify if ->NoSuchStash::SUPER::method */
             stash = gv_stashpvn(origname, sep_len - 7, is_utf8);
 	    if (stash) flags |= GV_SUPER;
@@ -1650,7 +1650,7 @@ S_parse_gv_stash_name(pTHX_ HV **stash, GV **gv, const char **name,
                     *stash = GvHV(*gv) = newHV();
                     if (!HvNAME_get(*stash)) {
                         if (GvSTASH(*gv) == PL_defstash && *len == 6
-                            && strEQs(*name, "CORE"))
+                            && strSTARTS_WITHs(*name, "CORE"))
                             hv_name_sets(*stash, "CORE", 0);
                         else
                             hv_name_set(
@@ -1908,7 +1908,7 @@ S_gv_magicalize(pTHX_ GV *gv, HV *stash, const char *name, STRLEN len,
 	if (len > 1 /* shortest is uc */ && HvNAMELEN_get(stash) == 4) {
 	  /* Avoid null warning: */
 	  const char * const stashname = HvNAME(stash); assert(stashname);
-	  if (strEQs(stashname, "CORE"))
+	  if (strSTARTS_WITHs(stashname, "CORE"))
 	    S_maybe_add_coresub(aTHX_ 0, gv, name, len);
 	}
     }
@@ -2385,7 +2385,7 @@ Perl_gv_fetchpvn_flags(pTHX_ const char *nambeg, STRLEN full_len, I32 flags,
                 maybe_multimagic_gv(gv, name, sv_type);
 	    }
 	    else if (len == 3 && sv_type == SVt_PVAV
-	          && strEQs(name, "ISA")
+	          && strSTARTS_WITHs(name, "ISA")
 	          && (!GvAV(gv) || !SvSMAGICAL(GvAV(gv))))
 		gv_magicalize_isa(gv);
 	}
