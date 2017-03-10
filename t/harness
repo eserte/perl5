@@ -87,6 +87,18 @@ if ($ENV{HARNESS_OPTIONS}) {
     }
 }
 
+sub test_names_cmp {
+        my $priority_pattern = qr/ XS-APItest .* (?<! utf ) \d \.t $ /x;
+
+        if ($a =~ $priority_pattern) {
+            return lc $a cmp lc $b if $b =~ $priority_pattern;
+            return -1;
+        }
+
+        return 1 if $b =~ $priority_pattern;
+        return lc $a cmp lc $b;
+}
+
 if (@ARGV) {
     # If you want these run in speed order, just use prove
     if ($^O eq 'MSWin32') {
@@ -145,8 +157,9 @@ if (@ARGV) {
 	push @seq, $next;
 
 	my @last;
-	push @last,  sort { lc $a cmp lc $b }
-	    _tests_from_manifest($Config{extensions}, $Config{known_extensions});
+        push @last,
+            _tests_from_manifest($Config{extensions}, $Config{known_extensions});
+        #print STDERR __FILE__, ": ", __LINE__, ": ", join "\n# ", @last, "\n";
 	my %times;
 	if ($state) {
 	    # Where known, collate the elapsed times by test name
@@ -163,7 +176,8 @@ if (@ARGV) {
 		s,\\,/,g; # canonicalize path
 	    };
 	    # Treat every file matching lib/*.t as a "directory"
-	    m!\A(\.\./lib/[^/]+\.t\z|.*[/])! or die "'$_'";
+            #print STDERR __FILE__, ": ", __LINE__, ": ", $_, "\n";
+	    m! \A ( \.\. / (?: lib | ext/XS-APItest/t ) / [^/]+ \.t \z | .* [/] ) !x or die "'$_'";
 	    push @{$dir{$1}}, $_;
 	    $total_time{$1} += $times{$_} || 0;
 	}
@@ -174,8 +188,9 @@ if (@ARGV) {
 	# sequentially.
 	push @seq, { par => [ map { s!/$!/*!; { seq => $_ } } sort {
 	    # Directories, ordered by total time descending then name ascending
-	    $total_time{$b} <=> $total_time{$a} || $a cmp $b
+	    $total_time{$b} <=> $total_time{$a} || test_names_cmp
 	} keys %dir ] };
+        #use Data::Dumper; print STDERR __FILE__, ": ", __LINE__, ": ", Dumper \@seq;
 
 	$rules = { seq => \@seq };
     }
@@ -202,6 +217,7 @@ my $type = 'perl';
 # in which the harness process chdirs into ext/Dist
 require TAP::Parser;
 
+#use Data::Dumper; print STDERR __FILE__, ": ", __LINE__, ": ", Dumper $rules;
 my $h = TAP::Harness->new({
     rules       => $rules,
     color       => $color,
