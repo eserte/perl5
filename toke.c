@@ -7028,8 +7028,7 @@ Perl_yylex(pTHX)
 
 	/* x::* is just a word, unless x is "CORE" */
 	if (!anydelim && *s == ':' && s[1] == ':') {
-            // is len 4?
-	    if (strEQ(PL_tokenbuf, "CORE")) goto case_KEY_CORE;
+	    if (strEQs(PL_tokenbuf, len, "CORE")) goto case_KEY_CORE;
 	    goto just_a_word;
 	}
 
