@@ -4767,12 +4767,8 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		libpath = SvPVX(libdir);
 		libpath_len = SvCUR(libdir);
 
-		/* This would work more efficiently with memrchr, but as it's
-		   only a GNU extension we'd need to probe for it and
-		   implement our own. Not hard, but maybe not worth it?  */
-
 		prefix = SvPVX(prefix_sv);
-		lastslash = strrchr(prefix, '/');
+		lastslash = (char *) memrchr(prefix, '/', SvEND(prefix_sv) - prefix);
 
 		/* First time in with the *lastslash = '\0' we just wipe off
 		   the trailing /perl from (say) /usr/foo/bin/perl
@@ -4781,7 +4777,10 @@ S_mayberelocate(pTHX_ const char *const dir, STRLEN len, U32 flags)
 		    SV *tempsv;
 		    while ((*lastslash = '\0'), /* Do that, come what may.  */
                            (libpath_len >= 3 && _memEQs(libpath, "../")
-			    && (lastslash = strrchr(prefix, '/')))) {
+			    && (lastslash =
+                                  (char *) memrchr(prefix, '/',
+                                                   SvEND(prefix_sv) - prefix))))
+                    {
 			if (lastslash[1] == '\0'
 			    || (lastslash[1] == '.'
 				&& (lastslash[2] == '/' /* ends "/."  */
@@ -5202,12 +5201,13 @@ static I32
 read_e_script(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     const char * const p  = SvPVX_const(PL_e_script);
-    const char *nl = strchr(p, '\n');
+    const char * const e  = SvEND(PL_e_script);
+    const char *nl = (char *) memchr(p, '\n', e - p);
 
     PERL_UNUSED_ARG(idx);
     PERL_UNUSED_ARG(maxlen);
 
-    nl = (nl) ? nl+1 : SvEND(PL_e_script);
+    nl = (nl) ? nl+1 : e;
     if (nl-p == 0) {
 	filter_del(read_e_script);
 	return 0;

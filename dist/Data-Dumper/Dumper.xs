@@ -851,7 +851,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 	    SV * const ixsv = newSViv(0);
 	    /* allowing for a 24 char wide array index */
 	    New(0, iname, namelen+28, char);
-	    (void)strcpy(iname, name);
+	    (void) my_strlcpy(iname, name, namelen+28);
 	    inamelen = namelen;
 	    if (name[0] == '@') {
 		sv_catpvs(retval, "(");
@@ -1322,7 +1322,7 @@ DD_dump(pTHX_ SV *val, const char *name, STRLEN namelen, SV *retval, HV *seenhv,
 	    else {
 		sv_grow(retval, SvCUR(retval)+i+2);
 		r = SvPVX(retval)+SvCUR(retval);
-		r[0] = '*'; strcpy(r+1, c);
+		r[0] = '*'; my_strlcpy(r+1, c, SvLEN(retval));
 		i++;
 	    }
 	    SvCUR_set(retval, SvCUR(retval)+i);

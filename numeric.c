@@ -675,13 +675,11 @@ Perl_grok_infnan(pTHX_ const char** sp, const char* send)
                     return flags | IS_NUMBER_TRAILING;
                 }
                 t = s + 1;
-                while (t < send && *t && *t != ')') {
-                    t++;
-                }
-                if (t == send) {
+                t = (char *) memchr(t, ')', send - t);
+                if (t == NULL) { /* Looked like nan(...), but no close paren. */
                     return flags | IS_NUMBER_TRAILING;
                 }
-                if (*t == ')') {
+                    /* XXX outdent */
                     int nantype;
                     UV nanval;
                     if (s[0] == '0' && s + 2 < t &&
@@ -771,10 +769,6 @@ Perl_grok_infnan(pTHX_ const char** sp, const char* send)
                     if (s < t) {
                         flags |= IS_NUMBER_TRAILING;
                     }
-                } else {
-                    /* Looked like nan(...), but no close paren. */
-                    flags |= IS_NUMBER_TRAILING;
-                }
             } else {
                 while (s < send && isSPACE(*s))
                     s++;
@@ -1209,6 +1203,8 @@ S_mulexp10(NV value, I32 exponent)
 NV
 Perl_my_atof(pTHX_ const char* s)
 {
+    /* 's' must be NUL terminated */
+
     NV x = 0.0;
 #ifdef USE_QUADMATH
     Perl_my_atof2(aTHX_ s, &x);

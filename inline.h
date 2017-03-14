@@ -254,6 +254,77 @@ S_croak_memory_wrap(void)
 GCC_DIAG_RESTORE /* Intentionally left semicolonless. */
 #endif
 
+PERL_STATIC_INLINE void *
+S_my_memchr(const char * s, const char c, const size_t len)
+{
+    /* An inline version of memchr().  For short lengths, it just searches the
+     * string a byte at a time; otherwise it calls the C library function. */
+
+    const char * e;
+
+    PERL_ARGS_ASSERT_MY_MEMCHR;
+
+    if (len > 16) {
+
+#           define SAVE_MEMCHR(a,b,c) memchr(a,b,c)
+#           undef memchr /* Make sure this uses the libc function */
+
+        return memchr((void *) s, c, len);
+
+#           define memchr(a,b,c) SAVE_MEMCHR(a,b,c)
+
+    }
+
+    e = s + len;
+
+    while (s < e) {
+        if (*s == c) {
+            return (void *) s;
+        }
+        s++;
+    }
+
+    return NULL;
+}
+
+PERL_STATIC_INLINE void *
+S_my_memrchr(const char * s, const char c, const STRLEN len)
+{
+    /* An inline version of memrchr().  For short lengths or if memrchr() isn't
+     * available, it just searches the string a byte at a time; otherwise it
+     * calls the C library function. */
+
+    const char * t;
+
+    PERL_ARGS_ASSERT_MY_MEMRCHR;
+
+#ifdef HAS_MEMRCHR
+
+    if (len > 16) {
+
+#           define SAVE_MEMRCHR(a,b,c) memchr(a,b,c)
+#           undef memrchr /* Make sure this uses the libc function */
+
+        return memrchr(s, c, len);
+
+#           define memrchr(a,b,c) SAVE_MEMRCHR(a,b,c) memrchr(a,b,c)
+
+    }
+
+#endif
+
+    t = s + len - 1;
+
+    while (t >= s) {
+        if (*t == c) {
+            return (void *) t;
+        }
+        t--;
+    }
+
+    return NULL;
+}
+
 /* ------------------------------- utf8.h ------------------------------- */
 
 /*

@@ -2078,6 +2078,16 @@ PERL_CALLCONV Pid_t	Perl_my_fork(void);
 PERL_CALLCONV I32	Perl_my_lstat(pTHX);
 #endif
 PERL_CALLCONV I32	Perl_my_lstat_flags(pTHX_ const U32 flags);
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE void *	S_my_memchr(const char * s, const char c, const STRLEN len);
+#define PERL_ARGS_ASSERT_MY_MEMCHR	\
+	assert(s)
+#endif
+#ifndef PERL_NO_INLINE_FUNCTIONS
+PERL_STATIC_INLINE void *	S_my_memrchr(const char * s, const char c, const STRLEN len);
+#define PERL_ARGS_ASSERT_MY_MEMRCHR	\
+	assert(s)
+#endif
 PERL_CALLCONV PerlIO*	Perl_my_popen_list(pTHX_ const char* mode, int n, SV ** args);
 #define PERL_ARGS_ASSERT_MY_POPEN_LIST	\
 	assert(mode); assert(args)
@@ -5350,15 +5360,15 @@ PERL_STATIC_INLINE char*	S_form_short_octal_warning(pTHX_ const char * const s, 
 PERL_CALLCONV char	Perl_grok_bslash_c(pTHX_ const char source, const bool output_warning)
 			__attribute__warn_unused_result__;
 
-PERL_CALLCONV bool	Perl_grok_bslash_o(pTHX_ char** s, UV* uv, const char** error_msg, const bool output_warning, const bool strict, const bool silence_non_portable, const bool utf8)
+PERL_CALLCONV bool	Perl_grok_bslash_o(pTHX_ char** s, const char* const send, UV* uv, const char** error_msg, const bool output_warning, const bool strict, const bool silence_non_portable, const bool utf8)
 			__attribute__warn_unused_result__;
 #define PERL_ARGS_ASSERT_GROK_BSLASH_O	\
-	assert(s); assert(uv); assert(error_msg)
+	assert(s); assert(send); assert(uv); assert(error_msg)
 
-PERL_CALLCONV bool	Perl_grok_bslash_x(pTHX_ char** s, UV* uv, const char** error_msg, const bool output_warning, const bool strict, const bool silence_non_portable, const bool utf8)
+PERL_CALLCONV bool	Perl_grok_bslash_x(pTHX_ char** s, const char* const send, UV* uv, const char** error_msg, const bool output_warning, const bool strict, const bool silence_non_portable, const bool utf8)
 			__attribute__warn_unused_result__;
 #define PERL_ARGS_ASSERT_GROK_BSLASH_X	\
-	assert(s); assert(uv); assert(error_msg)
+	assert(s); assert(send); assert(uv); assert(error_msg)
 
 #ifndef PERL_NO_INLINE_FUNCTIONS
 PERL_STATIC_INLINE I32	S_regcurly(const char *s)
@@ -5681,19 +5691,19 @@ STATIC SV*	S_get_and_check_backslash_N_name(pTHX_ const char* s, const char* con
 #define PERL_ARGS_ASSERT_GET_AND_CHECK_BACKSLASH_N_NAME	\
 	assert(s); assert(e)
 
-STATIC void	S_incline(pTHX_ const char *s);
+STATIC void	S_incline(pTHX_ const char *s, const char *end);
 #define PERL_ARGS_ASSERT_INCLINE	\
-	assert(s)
+	assert(s); assert(end)
 STATIC int	S_intuit_method(pTHX_ char *s, SV *ioname, CV *cv);
 #define PERL_ARGS_ASSERT_INTUIT_METHOD	\
 	assert(s)
-STATIC int	S_intuit_more(pTHX_ char *s);
+STATIC int	S_intuit_more(pTHX_ char *s, char *e);
 #define PERL_ARGS_ASSERT_INTUIT_MORE	\
-	assert(s)
+	assert(s); assert(e)
 STATIC I32	S_lop(pTHX_ I32 f, U8 x, char *s);
 #define PERL_ARGS_ASSERT_LOP	\
 	assert(s)
-PERL_STATIC_NO_RET void	S_missingterm(pTHX_ char *s)
+PERL_STATIC_NO_RET void	S_missingterm(pTHX_ char *s, const STRLEN len)
 			__attribute__noreturn__;
 
 STATIC SV*	S_new_constant(pTHX_ const char *s, STRLEN len, const char *key, STRLEN keylen, SV *sv, SV *pv, const char *type, STRLEN typelen);

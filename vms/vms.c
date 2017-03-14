@@ -7658,7 +7658,7 @@ slash_dev_special_to_vms(const char *unixptr, char *vmspath, int vmspath_len)
     len = strlen(unixptr);
     if (nextslash != NULL)
 	len = nextslash - unixptr;
-    if (strEQ(unixptr, "null")) {
+    if (strEQ(unixptr, "null")) { /* XXX 5?, therefore EQ and not BEG */
 	if (vmspath_len >= 6) {
 	    strcpy(vmspath, "_NLA0:");
 	    return SS$_NORMAL;
@@ -8067,13 +8067,13 @@ posix_to_vmsspec_hardway(char *vmspath, int vmspath_len, const char *unixpath,
 	islnm = vmstrnenv(vmspath, esa, 0, fildev, 0);
 
         if (!islnm && !decc_posix_compliant_pathnames) {
-	    if (strEQ(vmspath, "bin")) {
+	    if (strEQ(vmspath, "bin")) {    /* XXX 4 meant full compare */
 	        /* bin => SYS$SYSTEM: */
 		islnm = vmstrnenv("SYS$SYSTEM:", esa, 0, fildev, 0);
 	    }
 	    else {
 	        /* tmp => SYS$SCRATCH: */
-		if (strEQ(vmspath, "tmp")) {
+		if (strEQ(vmspath, "tmp")) {    /* XXX 4 meant full compare */
 		    islnm = vmstrnenv("SYS$SCRATCH:", esa, 0, fildev, 0);
 		}
 	    }

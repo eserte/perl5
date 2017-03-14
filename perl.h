@@ -1062,13 +1062,8 @@ EXTERN_C int usleep(unsigned int);
 #   endif
 #endif
 
-#ifndef PERL_MICRO
-#ifndef memchr
-#   ifndef HAS_MEMCHR
-#       define memchr(s,c,n) ninstr((char*)(s), ((char*)(s)) + n, &(c), &(c) + 1)
-#   endif
-#endif
-#endif
+#define memchr(s,c,l) my_memchr((char *) s,c,l)
+#define memrchr(s,c,l) my_memrchr((char *) s,c,l)
 
 #ifndef HAS_BCMP
 #   ifndef bcmp

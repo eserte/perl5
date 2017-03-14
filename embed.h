@@ -360,6 +360,8 @@
 #define my_failure_exit()	Perl_my_failure_exit(aTHX)
 #define my_fflush_all()		Perl_my_fflush_all(aTHX)
 #define my_fork			Perl_my_fork
+#define my_memchr		S_my_memchr
+#define my_memrchr		S_my_memrchr
 #define my_popen_list(a,b,c)	Perl_my_popen_list(aTHX_ a,b,c)
 #define my_setenv(a,b)		Perl_my_setenv(aTHX_ a,b)
 #define my_socketpair		Perl_my_socketpair
@@ -1107,8 +1109,8 @@
 #  if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_TOKE_C) || defined(PERL_IN_DQUOTE_C)
 #define form_short_octal_warning(a,b)	S_form_short_octal_warning(aTHX_ a,b)
 #define grok_bslash_c(a,b)	Perl_grok_bslash_c(aTHX_ a,b)
-#define grok_bslash_o(a,b,c,d,e,f,g)	Perl_grok_bslash_o(aTHX_ a,b,c,d,e,f,g)
-#define grok_bslash_x(a,b,c,d,e,f,g)	Perl_grok_bslash_x(aTHX_ a,b,c,d,e,f,g)
+#define grok_bslash_o(a,b,c,d,e,f,g,h)	Perl_grok_bslash_o(aTHX_ a,b,c,d,e,f,g,h)
+#define grok_bslash_x(a,b,c,d,e,f,g,h)	Perl_grok_bslash_x(aTHX_ a,b,c,d,e,f,g,h)
 #define regcurly		S_regcurly
 #  endif
 #  if defined(PERL_IN_REGCOMP_C) || defined(PERL_IN_UTF8_C)
@@ -1806,11 +1808,11 @@
 #define force_version(a,b)	S_force_version(aTHX_ a,b)
 #define force_word(a,b,c,d)	S_force_word(aTHX_ a,b,c,d)
 #define get_and_check_backslash_N_name(a,b)	S_get_and_check_backslash_N_name(aTHX_ a,b)
-#define incline(a)		S_incline(aTHX_ a)
+#define incline(a,b)		S_incline(aTHX_ a,b)
 #define intuit_method(a,b,c)	S_intuit_method(aTHX_ a,b,c)
-#define intuit_more(a)		S_intuit_more(aTHX_ a)
+#define intuit_more(a,b)	S_intuit_more(aTHX_ a,b)
 #define lop(a,b,c)		S_lop(aTHX_ a,b,c)
-#define missingterm(a)		S_missingterm(aTHX_ a)
+#define missingterm(a,b)	S_missingterm(aTHX_ a,b)
 #define no_op(a,b)		S_no_op(aTHX_ a,b)
 #define parse_ident(a,b,c,d,e,f)	S_parse_ident(aTHX_ a,b,c,d,e,f)
 #define pending_ident()		S_pending_ident(aTHX)

@@ -475,8 +475,8 @@ Returns zero if non-equal, or non-zero if equal.
 */
 
 
-#define strNE(s1,s2) (strcmp(s1,s2))
-#define strEQ(s1,s2) (!strcmp(s1,s2))
+#define strNE(s1,s2) (strcmp(s1,s2) != 0)
+#define strEQ(s1,s2) (strcmp(s1,s2) == 0)
 #define strLT(s1,s2) (strcmp(s1,s2) < 0)
 #define strLE(s1,s2) (strcmp(s1,s2) <= 0)
 #define strGT(s1,s2) (strcmp(s1,s2) > 0)

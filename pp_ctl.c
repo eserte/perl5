@@ -739,8 +739,11 @@ PP(pp_formline)
 		gotsome = TRUE;
 		source = (U8 *) s;
 		to_copy = len;
-		while (s < send) {
-		    if (*s++ == '\n') {
+
+                while ((s = (char *) memchr(s, '\n', send - s)) != NULL) {
+                    s++;
+                    /* XXX outdent */
+
 			if (oneline) {
 			    to_copy = s - item - 1;
 			    chophere = s;
@@ -751,7 +754,6 @@ PP(pp_formline)
 			    } else
 				lines++;
 			}
-		    }
 		}
 	    }
 

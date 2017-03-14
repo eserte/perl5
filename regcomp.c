@@ -10639,11 +10639,12 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
                     goto unterminated_verb_pattern;
                 }
 	        RExC_parse += UTF ? UTF8SKIP(RExC_parse) : 1;
-	        while ( RExC_parse < RExC_end && *RExC_parse != ')' )
-                    RExC_parse += UTF ? UTF8SKIP(RExC_parse) : 1;
-	        if ( RExC_parse >= RExC_end || *RExC_parse != ')' )
+	        RExC_parse = (char *) memchr(RExC_parse, ')', RExC_end - RExC_parse);
+                if (RExC_parse == NULL) {
+                    RExC_parse = RExC_end;
                   unterminated_verb_pattern:
 	            vFAIL("Unterminated verb pattern argument");
+                }
 	        if ( RExC_parse == start_arg )
 	            start_arg = NULL;
 	    } else {
@@ -11502,7 +11503,7 @@ S_reg(pTHX_ RExC_state_t *pRExC_state, I32 paren, I32 *flagp,U32 depth)
         const char *p;
         static const char parens[] = "=!<,>";
 
-	if (paren && (p = strchr(parens, paren))) {
+	if (paren && (p = (char *) memchr(parens, paren, sizeof(parens) - 1))) {
 	    U8 node = ((p - parens) % 2) ? UNLESSM : IFMATCH;
 	    int flag = (p - parens) > 1;
 
@@ -12016,7 +12017,8 @@ S_grok_bslash_N(pTHX_ RExC_state_t *pRExC_state,
 
     RExC_parse++;	/* Skip past the '{' */
 
-    if (! (endbrace = strchr(RExC_parse, '}'))) { /* no trailing brace */
+    if (! (endbrace = (char *) memchr(RExC_parse, '}', RExC_end - RExC_parse)))
+    {
         vFAIL2("Missing right brace on \\%c{}", 'N');
     }
     else if(!(endbrace == RExC_parse		/* nothing between the {} */
@@ -12683,9 +12685,11 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
             else {
                 STRLEN length;
                 char name = *RExC_parse;
-                char * endbrace;
+                char * endbrace = NULL;
                 RExC_parse += 2;
-                endbrace = strchr(RExC_parse, '}');
+                if (RExC_parse < RExC_end) {
+                    endbrace = (char *) memchr(RExC_parse, '}', RExC_end - RExC_parse);
+                }
 
                 if (! endbrace) {
                     vFAIL2("Missing right brace on \\%c{}", name);
@@ -13257,6 +13261,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 			    const char* error_msg;
 
 			    bool valid = grok_bslash_o(&p,
+                                                       RExC_end,
 						       &result,
 						       &error_msg,
 						       PASS2, /* out warnings */
@@ -13283,6 +13288,7 @@ S_regatom(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth)
 			    const char* error_msg;
 
 			    bool valid = grok_bslash_x(&p,
+                                                       RExC_end,
 						       &result,
 						       &error_msg,
 						       PASS2, /* out warnings */
@@ -16179,7 +16185,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		    vFAIL2("Empty \\%c", (U8)value);
 		if (*RExC_parse == '{') {
 		    const U8 c = (U8)value;
-		    e = strchr(RExC_parse, '}');
+		    e = (char *) memchr(RExC_parse, '}', RExC_end - RExC_parse);
                     if (!e) {
                         RExC_parse++;
                         vFAIL2("Missing right brace on \\%c{}", c);
@@ -16394,6 +16400,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		{
 		    const char* error_msg;
 		    bool valid = grok_bslash_o(&RExC_parse,
+                                               RExC_end,
 					       &value,
 					       &error_msg,
                                                PASS2,   /* warnings only in
@@ -16412,6 +16419,7 @@ S_regclass(pTHX_ RExC_state_t *pRExC_state, I32 *flagp, U32 depth,
 		{
 		    const char* error_msg;
 		    bool valid = grok_bslash_x(&RExC_parse,
+                                               RExC_end,
 					       &value,
 					       &error_msg,
 					       PASS2, /* Output warnings */
@@ -18299,16 +18307,15 @@ S_reg_skipcomment(RExC_state_t *pRExC_state, char* p)
 
     assert(*p == '#');
 
-    while (p < RExC_end) {
-        if (*(++p) == '\n') {
-            return p+1;
-        }
+    p = (char *) memchr(p, '\n', RExC_end - p);
+    if (p) {
+        return p + 1;
     }
 
     /* we ran off the end of the pattern without ending the comment, so we have
      * to add an \n when wrapping */
     RExC_seen |= REG_RUN_ON_COMMENT_SEEN;
-    return p;
+    return RExC_end;
 }
 
 STATIC void
@@ -18334,13 +18341,11 @@ S_skip_to_be_ignored_text(pTHX_ RExC_state_t *pRExC_state,
 	    && *(*p + 1) == '?'
 	    && *(*p + 2) == '#')
 	{
-	    while (*(*p) != ')') {
-		if ((*p) == RExC_end)
-		    FAIL("Sequence (?#... not terminated");
-		(*p)++;
+            *p = (char *) memchr(*p, ')', RExC_end - *p);
+            if (*p == NULL) {
+                FAIL("Sequence (?#... not terminated");
 	    }
-	    (*p)++;
-	    continue;
+            (*p)++;
 	}
 
 	if (use_xmod) {

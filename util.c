@@ -874,7 +874,7 @@ Perl_fbm_instr(pTHX_ unsigned char *big, unsigned char *bigend, SV *littlestr, U
 	    s = big;
             if (c1 != c2) {
                 while (s < bigend) {
-                    /* do a quick test for c1 before calling memchr();
+                    /* do a quick test for c1 before calling XXX out-dated memchr();
                      * this avoids the expensive fn call overhead when
                      * there are lots of c1's */
                     if (LIKELY(*s != c1)) {
