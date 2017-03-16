@@ -670,6 +670,9 @@ Perl_grok_infnan(pTHX_ const char** sp, const char* send)
             if (*s == '(') {
                 /* C99 style "nan(123)" or Perlish equivalent "nan($uv)". */
                 const char *t;
+                int nantype;
+                UV nanval;
+
                 s++;
                 if (s == send) {
                     return flags | IS_NUMBER_TRAILING;
@@ -680,8 +683,6 @@ Perl_grok_infnan(pTHX_ const char** sp, const char* send)
                     return flags | IS_NUMBER_TRAILING;
                 }
                     /* XXX outdent */
-                    int nantype;
-                    UV nanval;
                     if (s[0] == '0' && s + 2 < t &&
                         isALPHA_FOLD_EQ(s[1], 'x') &&
                         isXDIGIT(s[2])) {
