@@ -12,7 +12,7 @@ BEGIN {
     skip_all_without_config('d_fork');
 }
 
-plan tests => 104;
+plan tests => 106;
 
 my $STDOUT = tempfile();
 my $STDERR = tempfile();
@@ -302,9 +302,19 @@ my @default_inc = split /\n/, $out;
 
 if ($Config{default_inc_excludes_dot}) {
     ok !(grep { $_ eq '.' } @default_inc), '. is not in @INC';
+    ($out, $err) = runperl_and_capture({ PERL_USE_UNSAFE_INC => 1 }, [@dump_inc]);
+
+    is ($err, '', 'No errors when determining unsafe @INC');
+
+    my @unsafe_inc = split /\n/, $out;
+
+    ok (eq_array([@unsafe_inc], [@default_inc, '.']), '. last in unsafe @INC')
+        or diag 'Unsafe @INC is: ', @unsafe_inc;
 }
 else {
     is ($default_inc[-1], '.', '. is last in @INC');
+    pass 'Not testing unsafe @INC when it contians . by default'
+        for 1..2;
 }
 
 my $sep = $Config{path_sep};
