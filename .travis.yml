@@ -1,0 +1,21 @@
+language: c
+
+compiler:
+ - clang
+ - gcc
+
+script:
+ - ./configure.gnu --prefix=/opt/bleadperl -Dusedevel -Dusemallocwrap=no
+ - make -j4 all
+# Remove .travis.yml, as porting/manifest.t fails on extra files
+# (Hopefully .travis.yml is not needed at this point anymore!)
+ - git rm .travis.yml
+ - env TEST_JOBS=4 make test_harness
+
+branches:
+ except:
+  - /appveyor/
+
+## Because of https://rt.perl.org/Ticket/Display.html?id=130143
+#sudo: false
+sudo: true
