@@ -1,11 +1,20 @@
 language: c
 
-compiler:
- - clang
- - gcc
+matrix:
+ include:
+  - compiler: clang
+    env: CONFIG_OPTS="-Dusemallocwrap=no"
+  - compiler: gcc
+    env: CONFIG_OPTS="-Dusemallocwrap=no"
+  - compiler: gcc
+    env: CONFIG_OPTS="-Dusemallocwrap=no -Dusethreads"
+  - compiler: gcc
+    env: CONFIG_OPTS="-Dusemallocwrap=no -Duselongdouble"
+  - compiler: gcc
+    env: CONFIG_OPTS="-Duseshrplib"
 
 script:
- - ./configure.gnu --prefix=/opt/bleadperl -Dusedevel -Dusemallocwrap=no
+ - ./configure.gnu --prefix=/opt/bleadperl -Dusedevel $CONFIG_OPTS
  - make -j4 all
 # Remove .travis.yml, as porting/manifest.t fails on extra files
 # (Hopefully .travis.yml is not needed at this point anymore!)
