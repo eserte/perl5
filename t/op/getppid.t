@@ -35,7 +35,8 @@ sub fork_and_retrieve {
 	    unless my ($how, $first, $second) = /^([a-z]+),(\d+),(\d+)\z/;
 	cmp_ok ($first, '>=', 1, "Parent of $which grandchild");
 	my $message = "grandchild waited until '$how'";
-	cmp_ok ($second, '>=', 1, "New parent of orphaned $which grandchild")
+        my $min_getppid_result = is_linux_container() ? 0 : 1;
+	cmp_ok ($second, '>=', $min_getppid_result, "New parent of orphaned $which grandchild")
 	    ? note ($message) : diag ($message);
 
 	SKIP: {
@@ -102,6 +103,19 @@ sub fork_and_retrieve {
 	}
 	exit 0;
     }
+}
+
+sub is_linux_container {
+    my $is_linux_container = 0;
+    if ($^O eq 'linux' && open my $fh, '<', '/proc/1/cgroup') {
+	while(<$fh>) {
+	    if (m{^\d+:pids:(.*)} && $1 ne '/init.scope') {
+		$is_linux_container = 1;
+		last;
+	    }
+	}
+    }
+    $is_linux_container;
 }
 
 my $first = fork_and_retrieve("first");
