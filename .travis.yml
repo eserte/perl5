@@ -12,6 +12,7 @@ matrix:
     env: CONFIG_OPTS="-Dusemallocwrap=no -Duselongdouble"
   - compiler: gcc
     env: CONFIG_OPTS="-Duseshrplib"
+    sudo: false
 
 script:
  - ./configure.gnu --prefix=/opt/bleadperl -Dusedevel $CONFIG_OPTS
